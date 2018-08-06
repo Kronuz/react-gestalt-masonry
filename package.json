@@ -7,7 +7,6 @@
   "main": "es/index.js",
   "jsnext:main": "es/index.js",
   "module": "es/index.js",
-  "style": "masonry.css",
   "scripts": {
     "build": "tsc"
   },

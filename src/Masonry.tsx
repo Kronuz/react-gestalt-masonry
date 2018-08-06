@@ -2,7 +2,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import debounce from './debounce.js';
 import FetchItems from './FetchItems.js';
-import styles from '../masonry.css';
 import ScrollContainer from './ScrollContainer.js';
 import throttle from './throttle.js';
 import MeasurementStore from './MeasurementStore.js';
@@ -399,11 +398,10 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
     const itemComponent = (
       <div
         key={`item-${idx}`}
-        className={[styles.Masonry__Item, styles.Masonry__Item__Mounted].join(
-          ' '
-        )}
+        className="Masonry__Item Masonry__Item__Mounted"
         data-grid-item
         style={{
+          position: 'absolute',
           top: 0,
           left: 0,
           transform: `translateX(${left}px) translateY(${top}px)`,
@@ -467,8 +465,13 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
       // and the measurement store is empty
       gridBody = (
         <div
-          className={styles.Masonry}
-          style={{ height: 0, width: '100%' }}
+          className="Masonry"
+          style={{
+            position: 'relative',
+            margin: '0 auto',
+            height: 0,
+            width: '100%',
+          }}
           ref={this.setGridWrapperRef}
         >
           {items.filter((item: T) => item).map((item: T, i: number) => (
@@ -518,12 +521,28 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
         : 0;
       gridBody = (
         <div style={{ width: '100%' }} ref={this.setGridWrapperRef}>
-          <div className={styles.Masonry} style={{ height, width }}>
+          <div
+            className="Masonry"
+            style={{
+              position: 'relative',
+              margin: '0 auto',
+              height,
+              width,
+            }}
+          >
             {itemsToRender.map((item, i) =>
               this.renderMasonryComponent(item, i, positions[i])
             )}
           </div>
-          <div className={styles.Masonry} style={{ width }}>
+          <div
+            className="Masonry"
+            style={{
+              position: 'relative',
+              margin: '0 auto',
+              height: '100%',
+              width,
+            }}
+          >
             {itemsToMeasure.map((data, i) => {
               // itemsToMeasure is always the length of minCols, so i will always be 0..minCols.length
               // we normalize the index here relative to the item list as a whole so that itemIdx is correct
