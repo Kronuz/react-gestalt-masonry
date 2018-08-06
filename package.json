@@ -1,0 +1,27 @@
+{
+  "name": "masonry",
+  "description": "Masonry ported to TypeScript from pinterest/gestalt",
+  "homepage": "https://github.com/Kronuz/Masonry",
+  "version": "0.77.0",
+  "license": "Apache-2.0",
+  "main": "es/index.js",
+  "jsnext:main": "es/index.js",
+  "module": "es/index.js",
+  "style": "masonry.css",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "prop-types": "^15.6.2"
+  },
+  "devDependencies": {
+    "@types/prop-types": "^15.5.4",
+    "@types/react": "^16.4.7",
+    "@types/react-dom": "^16.0.6",
+    "typescript": "^3.0.1"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.6.2",
+    "react": "^16.4.2"
+  }
+}
