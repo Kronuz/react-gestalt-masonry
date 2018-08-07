@@ -11,7 +11,7 @@ try {
 		return idx;
 	}
 	var gutter = 14;
-	var minCols = 1;
+	var minCols = 3;
 	var grids = document.getElementsByClassName('Masonry');
 	for (var j = 0; j < grids.length; j++) {
 		var grid = grids[j];
