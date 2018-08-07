@@ -496,6 +496,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
               data-grid-item
               key={i}
               style={{
+                position: 'absolute',
                 top: 0,
                 left: 0,
                 transform: 'translateX(0px) translateY(0px)',
