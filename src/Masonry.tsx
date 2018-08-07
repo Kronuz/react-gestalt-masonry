@@ -40,6 +40,8 @@ interface Props<T> {
   virtualBoundsTop?: number;
   virtualBoundsBottom?: number;
   virtualize?: boolean;
+  className?: string;
+  itemClassName?: string;
 }
 
 interface State<T> {
@@ -162,6 +164,16 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
      * Whether or not to use actual virtualization
      */
     virtualize: PropTypes.bool,
+
+    /**
+     * className
+     */
+    className: PropTypes.string,
+
+    /**
+     * itemClassName
+     */
+    itemClassName: PropTypes.string,
   };
 
   static defaultProps = {
@@ -171,6 +183,8 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
     layout: DefaultLayoutSymbol,
     loadItems: () => {},
     virtualize: false,
+    className: "Masonry",
+    itemClassName: "Masonry__Item Masonry__Item__Mounted",
   };
 
   constructor(props: Props<T>) {
@@ -372,6 +386,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
       virtualize,
       virtualBoundsTop,
       virtualBoundsBottom,
+      itemClassName,
     } = this.props;
     const { top, left, width, height } = position;
 
@@ -398,7 +413,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
     const itemComponent = (
       <div
         key={`item-${idx}`}
-        className="Masonry__Item Masonry__Item__Mounted"
+        className={itemClassName}
         data-grid-item
         style={{
           position: 'absolute',
@@ -426,6 +441,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
       measurementStore,
       items,
       minCols,
+      className,
     } = this.props;
     const { hasPendingMeasurements, width } = this.state;
 
@@ -465,7 +481,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
       // and the measurement store is empty
       gridBody = (
         <div
-          className="Masonry"
+          className={className}
           style={{
             position: 'relative',
             margin: '0 auto',
@@ -522,7 +538,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
       gridBody = (
         <div style={{ width: '100%' }} ref={this.setGridWrapperRef}>
           <div
-            className="Masonry"
+            className={className}
             style={{
               position: 'relative',
               margin: '0 auto',
@@ -535,7 +551,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
             )}
           </div>
           <div
-            className="Masonry"
+            className={className}
             style={{
               position: 'relative',
               margin: '0 auto',
