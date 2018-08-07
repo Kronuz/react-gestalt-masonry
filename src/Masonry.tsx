@@ -496,6 +496,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
               data-grid-item
               key={i}
               style={{
+                visibility: 'hidden',
                 position: 'absolute',
                 top: 0,
                 left: 0,
