@@ -1,7 +1,7 @@
 {
-  "name": "masonry",
+  "name": "react-gestalt-masonry",
   "description": "Masonry ported to TypeScript from pinterest/gestalt",
-  "homepage": "https://github.com/Kronuz/Masonry",
+  "homepage": "https://github.com/Kronuz/react-gestalt-masonry",
   "version": "0.77.0",
   "license": "Apache-2.0",
   "main": "es/index.js",
