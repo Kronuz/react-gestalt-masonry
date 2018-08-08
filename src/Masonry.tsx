@@ -445,8 +445,14 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
     } = this.props;
     const { hasPendingMeasurements, width } = this.state;
 
-    let layout;
+    let layout, dataMasonry;
     if (flexible && width !== null) {
+      dataMasonry = {
+        'data-masonry-layout': 'fullWidth',
+        'data-masonry-ideal-column-width': columnWidth || 240,
+        'data-masonry-gutter': gutter || 0,
+        'data-masonry-min-cols': minCols || 2,
+      }
       layout = fullWidthLayout({
         gutter,
         cache: measurementStore,
@@ -458,6 +464,12 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
       this.props.layout === UniformRowLayoutSymbol ||
       this.props.layout instanceof LegacyUniformRowLayout
     ) {
+      dataMasonry = {
+        'data-masonry-layout': 'uniformRow',
+        'data-masonry-column-width': columnWidth || 236,
+        'data-masonry-gutter': gutter || 14,
+        'data-masonry-min-cols': minCols || 3,
+      }
       layout = uniformRowLayout({
         cache: measurementStore,
         columnWidth,
@@ -466,6 +478,12 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
         width,
       });
     } else {
+      dataMasonry = {
+        'data-masonry-layout': 'default',
+        'data-masonry-column-width': columnWidth || 236,
+        'data-masonry-gutter': gutter || 14,
+        'data-masonry-min-cols': minCols || 2,
+      }
       layout = defaultLayout({
         cache: measurementStore,
         columnWidth,
@@ -489,6 +507,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
             width: '100%',
           }}
           ref={this.setGridWrapperRef}
+          {...dataMasonry}
         >
           {items.filter((item: T) => item).map((item: T, i: number) => (
             <div // keep this in sync with renderMasonryComponent
