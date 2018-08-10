@@ -21,12 +21,14 @@ export default <T>({
   gutter = 0,
   cache,
   minCols = 2,
+  maxCols = Infinity,
   idealColumnWidth = 240,
   width,
 }: {
   gutter?: number,
   cache: Cache<T, number>,
   minCols?: number,
+  maxCols?: number,
   idealColumnWidth?: number,
   width?: number,
 }) => {
@@ -44,10 +46,10 @@ export default <T>({
   // Yes, indeed. The "guessing" here is meant to replicate the pass that the
   // original implementation takes with CSS.
   const colguess = Math.floor(width / idealColumnWidth);
-  const columnCount = Math.max(
+  const columnCount = Math.min(Math.max(
     Math.floor((width - colguess * gutter) / idealColumnWidth),
     minCols
-  );
+  ), maxCols);
   const columnWidth = Math.floor(width / columnCount);
 
   return (items: T[]) => {

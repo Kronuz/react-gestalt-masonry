@@ -15,22 +15,24 @@ export default <T>({
   gutter = 14,
   width,
   minCols = 3,
+  maxCols = Infinity,
 }: {
   cache: Cache<T, number>,
   columnWidth?: number,
   gutter?: number,
   width?: number,
   minCols?: number,
+  maxCols?: number,
 }) => (items: T[]): Position[] => {
   if (width == null) {
     return items.map(() => offscreen(columnWidth));
   }
 
   const columnWidthAndGutter = columnWidth + gutter;
-  const columnCount = Math.max(
+  const columnCount = Math.min(Math.max(
     Math.floor((width + gutter) / columnWidthAndGutter),
     minCols
-  );
+  ), maxCols);
 
   const positions = [];
   const heights = [];

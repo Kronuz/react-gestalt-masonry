@@ -29,12 +29,14 @@ export default <T>({
   columnWidth = 236,
   gutter = 14,
   minCols = 2,
+  maxCols = Infinity,
   width,
 }: {
   columnWidth?: number,
   gutter?: number,
   cache: Cache<T, number>,
   minCols?: number,
+  maxCols?: number,
   width?: number,
 }) => (items: any[]): Position[] => {
   if (width == null) {
@@ -42,10 +44,10 @@ export default <T>({
   }
 
   const columnWidthAndGutter = columnWidth + gutter;
-  const columnCount = Math.max(
+  const columnCount = Math.min(Math.max(
     Math.floor((width + gutter) / columnWidthAndGutter),
     minCols
-  );
+  ), maxCols);
   // the total height of each column
   const heights = new Array(columnCount).fill(0);
   const centerOffset = Math.max(

@@ -38,14 +38,19 @@ try {
 		var masonry = JSON.parse(grid.getAttribute('data-masonry'));
 		switch (masonry.layout) {
 			case 'fullWidth': {
+				var gutter = masonry.gutter || 0;
+				var minCols = masonry.minCols || 2;
+				var maxCols = masonry.maxCols || Infinity;
+				var idealColumnWidth = masonry.idealColumnWidth || 240;
+
 				// "This is kind of crazy!" - you
 				// Yes, indeed. The "guessing" here is meant to replicate the pass that the
 				// original implementation takes with CSS.
-				var colguess = Math.floor(width / masonry.idealColumnWidth);
-				var columnCount = Math.max(
-					Math.floor((width - colguess * masonry.gutter) / masonry.idealColumnWidth),
-					masonry.minCols
-				);
+				var colguess = Math.floor(width / idealColumnWidth);
+				var columnCount = Math.min(Math.max(
+					Math.floor((width - colguess * gutter) / idealColumnWidth),
+					minCols
+				), maxCols);
 				var columnWidth = breakpointNumber(Math.floor(width / columnCount), breakpoint);
 
 				var items = [].slice.call(grid.getElementsByClassName('static'));
@@ -56,7 +61,7 @@ try {
 
 					var col = mindex(heights, shortest);
 					var _top = heights[col];
-					var _left = col * columnWidth + masonry.gutter / 2;
+					var _left = col * columnWidth + gutter / 2;
 
 					heights[col] += height;
 
@@ -69,13 +74,18 @@ try {
 				break;
 			}
 			case 'uniformRow': {
-				var columnWidth = breakpointNumber(masonry.columnWidth, breakpoint);
+				var columnWidth = masonry.columnWidth || 236;
+				var gutter = masonry.gutter || 14;
+				var minCols = masonry.minCols || 3;
+				var maxCols = masonry.maxCols || Infinity;
 
-				var columnWidthAndGutter = columnWidth + masonry.gutter;
-				var columnCount = Math.max(
-					Math.floor((width + masonry.gutter) / columnWidthAndGutter),
-					masonry.minCols
-				);
+				var columnWidth = breakpointNumber(columnWidth, breakpoint);
+
+				var columnWidthAndGutter = columnWidth + gutter;
+				var columnCount = Math.min(Math.max(
+					Math.floor((width + gutter) / columnWidthAndGutter),
+					minCols
+				), maxCols);
 
 				var items = [].slice.call(grid.getElementsByClassName('static'));
 				for (var i = 0; i < items.length; i++) {
@@ -92,7 +102,7 @@ try {
 
 					var _top =
 						row > 0
-							? heights.slice(0, row).reduce((sum, y) => sum + y + masonry.gutter, 0)
+							? heights.slice(0, row).reduce((sum, y) => sum + y + gutter, 0)
 							: 0;
 					var _left = column * columnWidthAndGutter;
 
@@ -105,13 +115,21 @@ try {
 				break;
 			}
 			default: {
-				columnWidth = breakpointNumber(masonry.columnWidth, breakpoint);
+				var columnWidth = masonry.columnWidth || 236;
+				var gutter = masonry.gutter || 14;
+				var minCols = masonry.minCols || 2;
+				var maxCols = masonry.maxCols || Infinity;
 
-				var columnWidthAndGutter = columnWidth + masonry.gutter;
-				var columnCount = Math.max(Math.floor((width + masonry.gutter) / columnWidthAndGutter), masonry.minCols);
+				columnWidth = breakpointNumber(columnWidth, breakpoint);
+
+				var columnWidthAndGutter = columnWidth + gutter;
+				var columnCount = Math.min(Math.max(
+					Math.floor((width + gutter) / columnWidthAndGutter),
+					minCols
+				), maxCols);
 				// the total height of each column
 				var heights = new Array(columnCount).fill(0);
-				var centerOffset = Math.max(Math.floor((width - columnWidthAndGutter * columnCount + masonry.gutter) / 2), 0);
+				var centerOffset = Math.max(Math.floor((width - columnWidthAndGutter * columnCount + gutter) / 2), 0);
 
 				var items = [].slice.call(grid.getElementsByClassName('static'));
 				for (var i = 0; i < items.length; i++) {
@@ -119,7 +137,7 @@ try {
 					item.style.width = columnWidth + 'px';
 					var height = item.clientHeight;
 
-					var heightAndGutter = height + masonry.gutter;
+					var heightAndGutter = height + gutter;
 					var col = mindex(heights, shortest);
 					var _top = heights[col];
 					var _left = col * columnWidthAndGutter + centerOffset;

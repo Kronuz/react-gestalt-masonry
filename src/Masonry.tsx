@@ -44,6 +44,7 @@ interface Props<T> {
   items: T[];
   measurementStore?: any;
   minCols?: number;
+  maxCols?: number;
   layout?: Layout;
   loadItems?: false | (({ from: number }: { from: number }) => void | boolean | {});
   scrollContainer: () => HTMLElement | null;
@@ -199,6 +200,11 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
     minCols: PropTypes.number,
 
     /**
+     * Maximum number of columns to display.
+     */
+    maxCols: PropTypes.number,
+
+    /**
      * Function that the grid calls to get the scroll container.
      * This is required if the grid is expected to be scrollable.
      */
@@ -224,6 +230,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
     columnWidth: 236,
     measurementStore: new MeasurementStore(),
     minCols: 3,
+    maxCols: Infinity,
     layout: DefaultLayoutSymbol,
     loadItems: () => {},
     virtualize: false,
@@ -485,6 +492,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
       measurementStore,
       items,
       minCols,
+      maxCols,
       className,
     } = this.props;
     const { hasPendingMeasurements, width, breakpoint } = this.state;
@@ -497,12 +505,14 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
           idealColumnWidth: columnWidth || 240,
           gutter: gutter || 0,
           minCols: minCols || 2,
+          maxCols: maxCols || Infinity,
         }),
       }
       layout = fullWidthLayout({
         gutter,
         cache: measurementStore,
         minCols,
+        maxCols,
         idealColumnWidth: breakpointNumber(columnWidth, breakpoint),
         width,
       });
@@ -516,6 +526,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
           columnWidth: columnWidth || 236,
           gutter: gutter || 14,
           minCols: minCols || 3,
+          maxCols: maxCols || Infinity,
         }),
       }
       layout = uniformRowLayout({
@@ -523,6 +534,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
         columnWidth: breakpointNumber(columnWidth, breakpoint),
         gutter,
         minCols,
+        maxCols,
         width,
       });
     } else {
@@ -532,6 +544,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
           columnWidth: columnWidth || 236,
           gutter: gutter || 14,
           minCols: minCols || 2,
+          maxCols: maxCols || Infinity,
         }),
       }
       layout = defaultLayout({
@@ -539,6 +552,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
         columnWidth: breakpointNumber(columnWidth, breakpoint),
         gutter,
         minCols,
+        maxCols,
         width,
       });
     }
