@@ -26,8 +26,18 @@ type Layout =
   | LegacyMasonryLayout
   | LegacyUniformRowLayout;
 
+type BreakpointMap<T> = T | {
+  xs?: T;
+  sm?: T;
+  md?: T;
+  lg?: T;
+  xl?: T;
+};
+
+type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
 interface Props<T> {
-  columnWidth?: number;
+  columnWidth?: BreakpointMap<number>;
   comp: React.ComponentType<{data: T, itemIdx: number, isMeasuring: boolean}>;
   flexible?: boolean;
   gutterWidth?: number;
@@ -50,6 +60,7 @@ interface State<T> {
   items: T[];
   scrollTop: number;
   width?: number;
+  breakpoint?: Breakpoint;
 };
 
 interface Position {
@@ -66,6 +77,27 @@ const VIRTUAL_BUFFER_FACTOR = 0.7;
 
 const layoutNumberToCssDimension = (n: number) => (n !== Infinity ? n : undefined);
 
+const widthToBreakpoint = (w: number) =>
+  w >= 1200 ? 'xl' : w >= 992 ? 'lg' : w >= 768 ? 'md' : w >= 576 ? 'sm' : 'xs';
+
+const breakpointNumber = (obj?: BreakpointMap<number>, bp?: Breakpoint) => {
+    if (typeof obj !== 'object') {
+      return obj;
+    }
+    switch (bp) {
+      case 'xl':
+        if (obj.xl) return obj.xl;
+      case 'lg':
+        if (obj.lg) return obj.lg;
+      case 'md':
+        if (obj.md) return obj.md;
+      case 'sm':
+        if (obj.sm) return obj.sm;
+      case 'xs':
+        if (obj.xs) return obj.xs;
+    }
+}
+
 export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
   static createMeasurementStore() {
     return new MeasurementStore();
@@ -76,7 +108,10 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
    */
   handleResize = debounce(() => {
     if (this.gridWrapper) {
-      this.setState({ width: this.gridWrapper.clientWidth });
+      this.setState({
+        breakpoint: widthToBreakpoint(window.innerWidth),
+        width: this.gridWrapper.clientWidth,
+      });
     }
   }, RESIZE_DEBOUNCE);
 
@@ -104,7 +139,16 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
      * The preferred/target item width. If `flexible` is set, the item width will
      * grow to fill column space, and shrink to fit if below min columns.
      */
-    columnWidth: PropTypes.number,
+    columnWidth: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.shape({
+        xs: PropTypes.number,
+        sm: PropTypes.number,
+        md: PropTypes.number,
+        lg: PropTypes.number,
+        xl: PropTypes.number,
+      }),
+    ]),
 
     /**
      * The component to render.
@@ -443,50 +487,56 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
       minCols,
       className,
     } = this.props;
-    const { hasPendingMeasurements, width } = this.state;
+    const { hasPendingMeasurements, width, breakpoint } = this.state;
 
-    let layout, dataMasonry;
+    let layout, extra;
     if (flexible && width !== null) {
-      dataMasonry = {
-        'data-masonry-layout': 'fullWidth',
-        'data-masonry-ideal-column-width': columnWidth || 240,
-        'data-masonry-gutter': gutter || 0,
-        'data-masonry-min-cols': minCols || 2,
+      extra = {
+        'data-masonry': JSON.stringify({
+          layout: 'fullWidth',
+          idealColumnWidth: columnWidth || 240,
+          gutter: gutter || 0,
+          minCols: minCols || 2,
+        }),
       }
       layout = fullWidthLayout({
         gutter,
         cache: measurementStore,
         minCols,
-        idealColumnWidth: columnWidth,
+        idealColumnWidth: breakpointNumber(columnWidth, breakpoint),
         width,
       });
     } else if (
       this.props.layout === UniformRowLayoutSymbol ||
       this.props.layout instanceof LegacyUniformRowLayout
     ) {
-      dataMasonry = {
-        'data-masonry-layout': 'uniformRow',
-        'data-masonry-column-width': columnWidth || 236,
-        'data-masonry-gutter': gutter || 14,
-        'data-masonry-min-cols': minCols || 3,
+      extra = {
+        'data-masonry': JSON.stringify({
+          layout: 'uniformRow',
+          columnWidth: columnWidth || 236,
+          gutter: gutter || 14,
+          minCols: minCols || 3,
+        }),
       }
       layout = uniformRowLayout({
         cache: measurementStore,
-        columnWidth,
+        columnWidth: breakpointNumber(columnWidth, breakpoint),
         gutter,
         minCols,
         width,
       });
     } else {
-      dataMasonry = {
-        'data-masonry-layout': 'default',
-        'data-masonry-column-width': columnWidth || 236,
-        'data-masonry-gutter': gutter || 14,
-        'data-masonry-min-cols': minCols || 2,
+      extra = {
+        'data-masonry': JSON.stringify({
+          layout: 'default',
+          columnWidth: columnWidth || 236,
+          gutter: gutter || 14,
+          minCols: minCols || 2,
+        }),
       }
       layout = defaultLayout({
         cache: measurementStore,
-        columnWidth,
+        columnWidth: breakpointNumber(columnWidth, breakpoint),
         gutter,
         minCols,
         width,
@@ -507,7 +557,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
             width: '100%',
           }}
           ref={this.setGridWrapperRef}
-          {...dataMasonry}
+          {...extra}
         >
           {items.filter((item: T) => item).map((item: T, i: number) => (
             <div // keep this in sync with renderMasonryComponent
@@ -521,9 +571,7 @@ export default class Masonry<T> extends React.Component<Props<T>, State<T>> {
                 left: 0,
                 transform: 'translateX(0px) translateY(0px)',
                 WebkitTransform: 'translateX(0px) translateY(0px)',
-                width: flexible
-                  ? undefined
-                  : layoutNumberToCssDimension(columnWidth || Infinity), // we can't set a width for server rendered flexible items
+                width: undefined, // we can't set a width for server rendered items
               }}
               ref={el => {
                 if (el && !flexible) {
